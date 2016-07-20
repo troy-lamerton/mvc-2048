@@ -1,0 +1,32 @@
+{
+  "name": "mvc-2048",
+  "version": "1.0.0",
+  "description": "2048 for console and browser, structured using MVC framework",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/troy-lamerton/mvc-2048.git"
+  },
+  "keywords": [
+    "mvc",
+    "game",
+    "2048"
+  ],
+  "author": "troy-lamerton",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/troy-lamerton/mvc-2048/issues"
+  },
+  "homepage": "https://github.com/troy-lamerton/mvc-2048#readme",
+  "dependencies": {
+    "keypress": "^0.2.1"
+  },
+  "devDependencies": {
+    "babel-preset-es2015": "^6.9.0",
+    "babelify": "^7.3.0",
+    "browserify": "^13.0.1"
+  }
+}
