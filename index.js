@@ -1,5 +1,7 @@
-const keypress = require('keypress')
+import Router from './mvc/router'
 
-keypress(process.stdin)
+global.platform = 'console' // set to 'browser' or 'console'
 
-console.log('browserifyied')
+const router = new Router()
+
+router.listen()

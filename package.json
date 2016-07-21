@@ -4,10 +4,11 @@
   "description": "2048 for console and browser, structured using MVC framework",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
-    "build": "browserify index.js -o ./public/bundle.js -t [ babelify --presets [ es2015 ] ]",
+    "build-console": "browserify index.js -t [ babelify --comments false ] -o bundle-repl.js --node",
+    "build-browser": "browserify index.js -o ./public/bundle.js -t [ babelify --presets [ es2015 ] ]",
     "serve": "cd public && budo --live",
-    "web": "npm run build && npm run serve",
+    "start": "npm run build-console && node bundle-repl",
+    "start:browser": "npm run build-browser && npm run serve",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -26,11 +27,15 @@
   },
   "homepage": "https://github.com/troy-lamerton/mvc-2048#readme",
   "dependencies": {
+    "clear": "0.0.1",
+    "cli-table": "^0.3.1",
+    "ctrl-c": "^2.2.3",
     "keypress": "^0.2.1"
   },
   "devDependencies": {
     "babel-preset-es2015": "^6.9.0",
     "babelify": "^7.3.0",
-    "browserify": "^13.0.1"
+    "browserify": "^13.0.1",
+    "budo": "^8.3.0"
   }
 }
