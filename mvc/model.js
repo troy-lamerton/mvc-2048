@@ -53,10 +53,8 @@ export default class Model {
   }
 
   up () {
-    // transpose array
     this.board = transpose(this.board)
     this.moveLeft()
-    // transpose array
     this.board = transpose(this.board)
   }
 
@@ -67,7 +65,11 @@ export default class Model {
   }
 
   down () {
-
+    this.board = transpose(this.board)
+    this.board.forEach((row) => row.reverse())    
+    this.moveLeft()
+    this.board.forEach((row) => row.reverse())
+    this.board = transpose(this.board)
   }
 
   left () {
@@ -78,35 +80,41 @@ export default class Model {
     this.board = this.board.map((row, rowIndex) => {
       // create an array with all the numbers together
       // and no zeros
-      let nonZeroNumbers = row.filter((number) => number !== 0)
+      let shiftedRow = row.filter((number) => number !== 0)
 
       // row is empty, do nothing
-      if (nonZeroNumbers.length === 0) return row;
+      if (shiftedRow.length === 0) return row;
 
-      nonZeroNumbers.reduce((previousNum, currentNum, index, arr) => {
+      shiftedRow.reduce((previousNum, currentNum, index, arr) => {
         if (previousNum === currentNum) {
           // double first number
           arr[index-1] = currentNum * 2;
           // remove second number
           arr[index] = 0;
+          /* bug when three consecutive tiles are equal 
+              [2,2,2,0]
+            <--
+            [4,4,0,0] is the result
+            [4,2,0,0] is the expected result
+          */
         }
         return currentNum
       })
 
       // may contain zeros now
       // lets filter them out
-      nonZeroNumbers = nonZeroNumbers.filter((number) => {
+      shiftedRow = shiftedRow.filter((number) => {
         return number !== 0;
       })
 
-      if (nonZeroNumbers.length < row.length) {
+      if (shiftedRow.length < row.length) {
         // fill the rest of the row with zeros
-        const startFilling = nonZeroNumbers.length
-        nonZeroNumbers.length = row.length;
-        nonZeroNumbers.fill(0, startFilling);
+        const startFilling = shiftedRow.length
+        shiftedRow.length = row.length;
+        shiftedRow.fill(0, startFilling);
       }
 
-      return nonZeroNumbers;
+      return shiftedRow;
 
     })
     this.afterMovement();
@@ -128,5 +136,11 @@ export default class Model {
 
   updateScore () {
     this.score = this.highestNumber();
+  }
+
+  canMove () {
+    // check there is at least one empty tile
+    // check that at least two adjacent tiles are equal
+    // return false if both are false
   }
 }

@@ -153,10 +153,8 @@ var Model = function () {
   }, {
     key: 'up',
     value: function up() {
-      // transpose array
       this.board = (0, _transpose2.default)(this.board);
       this.moveLeft();
-      // transpose array
       this.board = (0, _transpose2.default)(this.board);
     }
   }, {
@@ -172,7 +170,17 @@ var Model = function () {
     }
   }, {
     key: 'down',
-    value: function down() {}
+    value: function down() {
+      this.board = (0, _transpose2.default)(this.board);
+      this.board.forEach(function (row) {
+        return row.reverse();
+      });
+      this.moveLeft();
+      this.board.forEach(function (row) {
+        return row.reverse();
+      });
+      this.board = (0, _transpose2.default)(this.board);
+    }
   }, {
     key: 'left',
     value: function left() {
@@ -184,14 +192,14 @@ var Model = function () {
       this.board = this.board.map(function (row, rowIndex) {
         // create an array with all the numbers together
         // and no zeros
-        var nonZeroNumbers = row.filter(function (number) {
+        var shiftedRow = row.filter(function (number) {
           return number !== 0;
         });
 
         // row is empty, do nothing
-        if (nonZeroNumbers.length === 0) return row;
+        if (shiftedRow.length === 0) return row;
 
-        nonZeroNumbers.reduce(function (previousNum, currentNum, index, arr) {
+        shiftedRow.reduce(function (previousNum, currentNum, index, arr) {
           if (previousNum === currentNum) {
             // double first number
             arr[index - 1] = currentNum * 2;
@@ -203,18 +211,18 @@ var Model = function () {
 
         // may contain zeros now
         // lets filter them out
-        nonZeroNumbers = nonZeroNumbers.filter(function (number) {
+        shiftedRow = shiftedRow.filter(function (number) {
           return number !== 0;
         });
 
-        if (nonZeroNumbers.length < row.length) {
+        if (shiftedRow.length < row.length) {
           // fill the rest of the row with zeros
-          var startFilling = nonZeroNumbers.length;
-          nonZeroNumbers.length = row.length;
-          nonZeroNumbers.fill(0, startFilling);
+          var startFilling = shiftedRow.length;
+          shiftedRow.length = row.length;
+          shiftedRow.fill(0, startFilling);
         }
 
-        return nonZeroNumbers;
+        return shiftedRow;
       });
       this.afterMovement();
     }
