@@ -1,3 +1,5 @@
+import transpose from 'transpose'
+
 export default class Model {
   constructor () {
     console.log('model constructed');
@@ -6,6 +8,10 @@ export default class Model {
       row.fill(0);
     });
     this.score = 0;
+  }
+
+  init () {
+    this.addRandomNums(2)
   }
 
   emptyTileExists () {
@@ -47,12 +53,17 @@ export default class Model {
   }
 
   up () {
-
+    // transpose array
+    this.board = transpose(this.board)
+    this.moveLeft()
+    // transpose array
+    this.board = transpose(this.board)
   }
 
   right () {
-    console.log('moving right');
-    
+    this.board.forEach((row) => row.reverse())    
+    this.moveLeft()
+    this.board.forEach((row) => row.reverse())    
   }
 
   down () {
@@ -60,6 +71,10 @@ export default class Model {
   }
 
   left () {
+    this.moveLeft();
+  }
+
+  moveLeft () {
     this.board = this.board.map((row, rowIndex) => {
       // create an array with all the numbers together
       // and no zeros
@@ -94,6 +109,24 @@ export default class Model {
       return nonZeroNumbers;
 
     })
+    this.afterMovement();
+  }
+
+  afterMovement () {
     this.addRandomNums();
+    this.updateScore();
+  }
+
+  highestNumber () {
+    return Math.max.apply(
+      null,
+      this.board.map(
+        (row) => Math.max.apply(null, row)
+      )
+    )
+  }
+
+  updateScore () {
+    this.score = this.highestNumber();
   }
 }

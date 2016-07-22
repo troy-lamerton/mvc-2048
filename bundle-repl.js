@@ -39,6 +39,7 @@ var Controller = function () {
     _classCallCheck(this, Controller);
 
     this.model = new _model2.default();
+    this.model.init();
     this.view = new _view2.default();
     this.view.init(this.model);
   }
@@ -83,6 +84,12 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
+var _transpose = require('transpose');
+
+var _transpose2 = _interopRequireDefault(_transpose);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var Model = function () {
@@ -98,6 +105,11 @@ var Model = function () {
   }
 
   _createClass(Model, [{
+    key: 'init',
+    value: function init() {
+      this.addRandomNums(2);
+    }
+  }, {
     key: 'emptyTileExists',
     value: function emptyTileExists() {
       return this.board.some(function (row) {
@@ -140,11 +152,23 @@ var Model = function () {
     }
   }, {
     key: 'up',
-    value: function up() {}
+    value: function up() {
+      // transpose array
+      this.board = (0, _transpose2.default)(this.board);
+      this.moveLeft();
+      // transpose array
+      this.board = (0, _transpose2.default)(this.board);
+    }
   }, {
     key: 'right',
     value: function right() {
-      console.log('moving right');
+      this.board.forEach(function (row) {
+        return row.reverse();
+      });
+      this.moveLeft();
+      this.board.forEach(function (row) {
+        return row.reverse();
+      });
     }
   }, {
     key: 'down',
@@ -152,6 +176,11 @@ var Model = function () {
   }, {
     key: 'left',
     value: function left() {
+      this.moveLeft();
+    }
+  }, {
+    key: 'moveLeft',
+    value: function moveLeft() {
       this.board = this.board.map(function (row, rowIndex) {
         // create an array with all the numbers together
         // and no zeros
@@ -187,7 +216,25 @@ var Model = function () {
 
         return nonZeroNumbers;
       });
+      this.afterMovement();
+    }
+  }, {
+    key: 'afterMovement',
+    value: function afterMovement() {
       this.addRandomNums();
+      this.updateScore();
+    }
+  }, {
+    key: 'highestNumber',
+    value: function highestNumber() {
+      return Math.max.apply(null, this.board.map(function (row) {
+        return Math.max.apply(null, row);
+      }));
+    }
+  }, {
+    key: 'updateScore',
+    value: function updateScore() {
+      this.score = this.highestNumber();
     }
   }]);
 
@@ -196,7 +243,7 @@ var Model = function () {
 
 exports.default = Model;
 
-},{}],4:[function(require,module,exports){
+},{"transpose":21}],4:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1698,4 +1745,32 @@ function emitKey(stream, s) {
   }
 }
 
-},{"events":undefined,"string_decoder":undefined}]},{},[1]);
+},{"events":undefined,"string_decoder":undefined}],21:[function(require,module,exports){
+function transpose(m) {
+  var mt;
+
+  var rows;
+  var cols;
+
+  var i, j;
+
+  mt = [];
+
+  rows = m.length;
+  cols = m[0].length;
+
+  for (j = 0; j < cols; j++) {
+    for (i = 0; i < rows; i++) {
+      if (!mt[j]) {
+        mt[j] = [];
+      }
+
+      mt[j][i] = m[i][j];
+    }
+  }
+
+  return mt;
+}
+
+module.exports = transpose;
+},{}]},{},[1]);

@@ -4,6 +4,7 @@ import View from './view'
 export default class Controller {
   constructor () {
     this.model = new Model()
+    this.model.init()
     this.view = new View()
     this.view.init(this.model)
   }
