@@ -17,9 +17,9 @@ export default class View {
         this.table.push(...model.board);
         clear();
         console.log(this.table.toString());
-        console.log('----------------------');
+        console.log('-----------------');
         console.log('Score:', model.score.yellow);
-        console.log(model.gameOverMessage.red);
+        console.log(model.gameOverMessage.bold);
         break;
 
       case 'browser':

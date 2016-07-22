@@ -58,7 +58,7 @@ export default class Model {
       amount--;
     }
   }
-
+  
   up () {
     this.board = transpose(this.board)
     this.moveLeft()
