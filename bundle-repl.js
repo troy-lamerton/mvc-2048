@@ -94,6 +94,7 @@ var Model = function () {
     this.board.forEach(function (row) {
       row.fill(0);
     });
+    this.score = 0;
   }
 
   _createClass(Model, [{
@@ -163,14 +164,13 @@ var Router = function () {
       console.log('listening in router');
       switch (global.platform) {
         case 'console':
+          (0, _keypress2.default)(process.stdin);
           process.stdin.setRawMode(true);
           process.stdin.resume();
           (0, _ctrlC2.default)(false); // do not disable ctrl-c
-          (0, _keypress2.default)(process.stdin);
 
           console.log('Welcome to the console view of 2048 game');
           process.stdin.on('keypress', function (ch, key) {
-            console.log('-----------------');
             if (key && key.code) {
               switch (key.code) {
                 case '[A':
@@ -189,7 +189,6 @@ var Router = function () {
                 // unhandled key, do nothing
               }
             }
-            console.log('-----------------');
           });
 
           break;
@@ -238,7 +237,7 @@ var View = function () {
   _createClass(View, [{
     key: 'init',
     value: function init(model) {
-      //display view for the first time
+      // display view for the first time
       console.log('initialise view');
       this.render(model);
     }
@@ -247,9 +246,12 @@ var View = function () {
     value: function render(model) {
       var _table;
 
-      (0, _clear2.default)();
+      this.table = new _cliTable2.default({});
       (_table = this.table).push.apply(_table, _toConsumableArray(model.board));
+      (0, _clear2.default)();
       console.log(this.table.toString());
+      console.log('-----------------');
+      console.log('Score:', model.score);
     }
   }]);
 

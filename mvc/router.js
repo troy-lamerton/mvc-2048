@@ -15,14 +15,12 @@ export default class Router {
     console.log('listening in router')
     switch (global.platform) {
       case 'console':
+        keypress(process.stdin);
         process.stdin.setRawMode( true );
         process.stdin.resume();
         CtrlC(false); // do not disable ctrl-c
-        keypress(process.stdin);
 
-        console.log('Welcome to the console view of 2048 game')
         process.stdin.on('keypress', (ch, key) => {
-          console.log('-----------------')
           if (key && key.code) {
             switch (key.code) {
               case '[A':
@@ -41,7 +39,6 @@ export default class Router {
                 // unhandled key, do nothing
             }
           }
-          console.log('-----------------')
         })
 
         break;

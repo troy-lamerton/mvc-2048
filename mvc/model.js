@@ -5,6 +5,7 @@ export default class Model {
     this.board.forEach((row) => {
       row.fill(0);
     });
+    this.score = 0;
   }
 
   addRandomNums () {
