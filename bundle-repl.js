@@ -98,8 +98,38 @@ var Model = function () {
   }
 
   _createClass(Model, [{
-    key: 'addRandomNums',
-    value: function addRandomNums() {}
+    key: 'addRandomNum',
+    value: function addRandomNum() {
+      var amount = arguments.length <= 0 || arguments[0] === undefined ? 1 : arguments[0];
+
+      // assumes there is a space to add number
+      // 70% chance new number is a 2
+      // 30% new number is a 4
+      function twoOrFour() {
+        if (Math.random() < 0.7) return 2;else return 4;
+      }
+
+      function getRandIndex() {
+        return Math.floor(Math.random() * 4);
+      }
+
+      while (amount > 0) {
+
+        var newNum = twoOrFour();
+        var hasBeenPlaced = false;
+
+        while (!hasBeenPlaced) {
+          var row = getRandIndex();
+          var cell = getRandIndex();
+          if (this.board[row][cell] == 0) {
+            this.board[row][cell] = twoOrFour();
+            hasBeenPlaced = true;
+          }
+        }
+
+        amount--;
+      }
+    }
   }, {
     key: 'up',
     value: function up() {}
@@ -113,7 +143,43 @@ var Model = function () {
     value: function down() {}
   }, {
     key: 'left',
-    value: function left() {}
+    value: function left() {
+      this.board.map(function (row, rowIndex) {
+        // create an array with all the numbers together
+        // and no zeros
+        var nonZeroNumbers = row.filter(function (number) {
+          return number !== 0;
+        });
+
+        // row is empty, do nothing
+        if (nonZeroNumbers.length === 0) return;
+
+        nonZeroNumbers.reduce(function (previousNum, currentNum, index, arr) {
+          if (previousNum === currentNum) {
+            // double first number
+            arr[index - 1] = previousNum * 2;
+            // remove second number
+            arr[index] = 0;
+          }
+        });
+
+        // may contain zeros now
+        // lets filter them out
+        nonZeroNumbers = nonZeroNumbers.filter(function (number) {
+          return number !== 0;
+        });
+
+        // fill the rest of the row with zeros
+        return row.map(function (number, index) {
+          if (nonZeroNumbers[index]) {
+            return nonZeroNumbers[index];
+          } else {
+            return 0;
+          }
+        });
+      });
+      this.addRandomNum();
+    }
   }]);
 
   return Model;
@@ -161,7 +227,6 @@ var Router = function () {
     value: function listen() {
       var _this = this;
 
-      console.log('listening in router');
       switch (global.platform) {
         case 'console':
           (0, _keypress2.default)(process.stdin);
@@ -169,7 +234,6 @@ var Router = function () {
           process.stdin.resume();
           (0, _ctrlC2.default)(false); // do not disable ctrl-c
 
-          console.log('Welcome to the console view of 2048 game');
           process.stdin.on('keypress', function (ch, key) {
             if (key && key.code) {
               switch (key.code) {
@@ -237,8 +301,6 @@ var View = function () {
   _createClass(View, [{
     key: 'init',
     value: function init(model) {
-      // display view for the first time
-      console.log('initialise view');
       this.render(model);
     }
   }, {

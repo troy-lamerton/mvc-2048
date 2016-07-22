@@ -6,13 +6,16 @@ export default class View {
     this.table = new Table({});
   }
 
+  init (model) {
+    this.render(model)
+  }
   render (model) {
     this.table = new Table({});
     this.table.push(...model.board);
     clear();
     console.log(this.table.toString());
-    console.log('-----------------')
-    console.log('Score:', model.score)
+    console.log('-----------------');
+    console.log('Score:', model.score);
   }
 
 

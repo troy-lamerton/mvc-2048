@@ -12,7 +12,6 @@ export default class Router {
   }
 
   listen () {
-    console.log('listening in router')
     switch (global.platform) {
       case 'console':
         keypress(process.stdin);
