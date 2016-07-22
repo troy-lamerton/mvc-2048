@@ -8,15 +8,13 @@ export default class Model {
     this.score = 0;
   }
 
-  emptyTilesExist () {
+  emptyTileExists () {
     return this.board.some((row) => {
       return row.includes(0);
     })
   }
 
   addRandomNums (amount = 1) {
-    // check there is a space to add a new number
-    if (!emptyTilesExist()) return false;
     // 70% chance new number is a 2
     // 30% new number is a 4
     function twoOrFour () {
@@ -29,6 +27,8 @@ export default class Model {
     }
 
     while (amount > 0) {
+      // check there is a space to add a new number
+      if (!this.emptyTileExists()) return false;
 
       const newNum = twoOrFour();
       let hasBeenPlaced = false;
@@ -60,24 +60,22 @@ export default class Model {
   }
 
   left () {
-    this.board.map((row, rowIndex) => {
+    this.board = this.board.map((row, rowIndex) => {
       // create an array with all the numbers together
       // and no zeros
-      let nonZeroNumbers = row.filter((number) => {
-        return number !== 0;
-      })
+      let nonZeroNumbers = row.filter((number) => number !== 0)
 
       // row is empty, do nothing
-      if (nonZeroNumbers.length === 0) return;
-
+      if (nonZeroNumbers.length === 0) return row;
 
       nonZeroNumbers.reduce((previousNum, currentNum, index, arr) => {
         if (previousNum === currentNum) {
           // double first number
-          arr[index-1] = previousNum * 2;
+          arr[index-1] = currentNum * 2;
           // remove second number
           arr[index] = 0;
         }
+        return currentNum
       })
 
       // may contain zeros now
@@ -86,14 +84,14 @@ export default class Model {
         return number !== 0;
       })
 
-      // fill the rest of the row with zeros
-      return row.map((number, index) => {
-        if (nonZeroNumbers[index]) {
-          return nonZeroNumbers[index];
-        } else {
-          return 0;
-        }
-      })
+      if (nonZeroNumbers.length < row.length) {
+        // fill the rest of the row with zeros
+        const startFilling = nonZeroNumbers.length
+        nonZeroNumbers.length = row.length;
+        nonZeroNumbers.fill(0, startFilling);
+      }
+
+      return nonZeroNumbers;
 
     })
     this.addRandomNums();

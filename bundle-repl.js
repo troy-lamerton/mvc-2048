@@ -98,11 +98,17 @@ var Model = function () {
   }
 
   _createClass(Model, [{
-    key: 'addRandomNum',
-    value: function addRandomNum() {
+    key: 'emptyTileExists',
+    value: function emptyTileExists() {
+      return this.board.some(function (row) {
+        return row.includes(0);
+      });
+    }
+  }, {
+    key: 'addRandomNums',
+    value: function addRandomNums() {
       var amount = arguments.length <= 0 || arguments[0] === undefined ? 1 : arguments[0];
 
-      // assumes there is a space to add number
       // 70% chance new number is a 2
       // 30% new number is a 4
       function twoOrFour() {
@@ -114,6 +120,8 @@ var Model = function () {
       }
 
       while (amount > 0) {
+        // check there is a space to add a new number
+        if (!this.emptyTileExists()) return false;
 
         var newNum = twoOrFour();
         var hasBeenPlaced = false;
@@ -144,7 +152,7 @@ var Model = function () {
   }, {
     key: 'left',
     value: function left() {
-      this.board.map(function (row, rowIndex) {
+      this.board = this.board.map(function (row, rowIndex) {
         // create an array with all the numbers together
         // and no zeros
         var nonZeroNumbers = row.filter(function (number) {
@@ -152,15 +160,16 @@ var Model = function () {
         });
 
         // row is empty, do nothing
-        if (nonZeroNumbers.length === 0) return;
+        if (nonZeroNumbers.length === 0) return row;
 
         nonZeroNumbers.reduce(function (previousNum, currentNum, index, arr) {
           if (previousNum === currentNum) {
             // double first number
-            arr[index - 1] = previousNum * 2;
+            arr[index - 1] = currentNum * 2;
             // remove second number
             arr[index] = 0;
           }
+          return currentNum;
         });
 
         // may contain zeros now
@@ -169,16 +178,16 @@ var Model = function () {
           return number !== 0;
         });
 
-        // fill the rest of the row with zeros
-        return row.map(function (number, index) {
-          if (nonZeroNumbers[index]) {
-            return nonZeroNumbers[index];
-          } else {
-            return 0;
-          }
-        });
+        if (nonZeroNumbers.length < row.length) {
+          // fill the rest of the row with zeros
+          var startFilling = nonZeroNumbers.length;
+          nonZeroNumbers.length = row.length;
+          nonZeroNumbers.fill(0, startFilling);
+        }
+
+        return nonZeroNumbers;
       });
-      this.addRandomNum();
+      this.addRandomNums();
     }
   }]);
 
