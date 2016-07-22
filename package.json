@@ -29,6 +29,7 @@
   "dependencies": {
     "clear": "0.0.1",
     "cli-table": "^0.3.1",
+    "colors": "^1.1.2",
     "ctrl-c": "^2.2.3",
     "keypress": "^0.2.1",
     "transpose": "0.0.2"

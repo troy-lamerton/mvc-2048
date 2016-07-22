@@ -210,22 +210,17 @@ var Model = function () {
             arr[index - 1] = currentNum * 2;
             // remove second number
             arr[index] = 0;
-            /* bug when three consecutive tiles are equal 
-                [2,2,2,0]
-              <--
-              [4,4,0,0] is the result
-              [4,2,0,0] is the expected result
-            */
           }
           return arr[index];
         });
 
         // may contain zeros now
         // lets filter them out
+        // so all numbers are on the left
         shiftedRow = filterZeros(shiftedRow);
 
         if (shiftedRow.length < row.length) {
-          // fill the rest of the row with zeros
+          // fill the end of the row with zeros
           var startFilling = shiftedRow.length;
           shiftedRow.length = row.length;
           shiftedRow.fill(0, startFilling);
@@ -257,8 +252,27 @@ var Model = function () {
     key: 'canMove',
     value: function canMove() {
       // check there is at least one empty tile
-      // check that at least two adjacent tiles are equal
-      // return false if both are false
+      if (emptyTileExists()) return true;
+
+      // check if two adjacent numbers are equal
+      /* Iterate over ever number, row by row,
+         checking if the tile to the right or below
+         is of equal value
+       */
+      return this.board.some(function (row, rowIndex, board) {
+        return row.some(function (num, numIndex, numArray) {
+          if (rowIndex < board.length - 1) {
+            // check number below (+1)
+            if (num === board[rowIndex + 1][numIndex]) return true;
+          }
+
+          if (numIndex < numArray.length - 1) {
+            // check number to right (+1)
+            if (num === numArray[numIndex + 1]) return true;
+          }
+          return false;
+        });
+      });
     }
   }]);
 

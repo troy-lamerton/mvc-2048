@@ -1,5 +1,6 @@
 import Table from 'cli-table'
 import clear from 'clear'
+import colors from 'colors'
 
 export default class View {
   constructor () {
@@ -16,8 +17,9 @@ export default class View {
         this.table.push(...model.board);
         clear();
         console.log(this.table.toString());
-        console.log('-----------------');
-        console.log('Score:', model.score);
+        console.log('----------------------');
+        console.log('Score:', model.score.yellow);
+        console.log(model.gameOverMessage.red);
         break;
 
       case 'browser':

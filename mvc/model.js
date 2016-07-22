@@ -13,6 +13,8 @@ export default class Model {
       row.fill(0);
     });
     this.score = 0;
+    this.gameIsOver = false;
+    this.gameOverMessage = ''; // indicating if you won or lost
   }
 
   init () {
@@ -139,11 +141,34 @@ export default class Model {
 
   updateScore () {
     this.score = this.highestNumber();
+    if (!canMove()) {
+      this.gameIsOver = true;
+      this.gameOverMessage = 'You didn\'t reach 2048, try again? (Press R)';
+    }
   }
 
   canMove () {
     // check there is at least one empty tile
-    // check that at least two adjacent tiles are equal
-    // return false if both are false
+    if (emptyTileExists()) return true;
+
+    // check if two adjacent numbers are equal
+    /* Iterate over ever number, row by row,
+       checking if the tile to the right or below
+       is of equal value
+     */
+    return this.board.some((row, rowIndex, board) => {
+      return row.some((num, numIndex, numArray) => {
+        if (rowIndex < board.length-1) {
+          // check number below (+1)
+          if (num === board[rowIndex+1][numIndex]) return true
+        }
+
+        if (numIndex < numArray.length-1) {
+          // check number to right (+1)
+          if (num === numArray[numIndex+1]) return true;
+        }
+        return false
+      })
+    })
   }
 }
