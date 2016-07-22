@@ -5,9 +5,6 @@ import CtrlC from 'ctrl-c'
 
 export default class Router {
   constructor () {
-    // is there a global place I can store this instead? e.g. process / env variable
-    // otherwise will have to pass platform to controller, and then to view
-    console.log(Controller)
     this.controller = new Controller();
   }
 

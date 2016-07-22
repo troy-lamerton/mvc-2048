@@ -2,8 +2,13 @@ import transpose from 'transpose'
 
 export default class Model {
   constructor () {
-    console.log('model constructed');
-    this.board = [ new Array(4), new Array(4), new Array(4), new Array(4) ];
+    this.board = [
+      new Array(4),
+      new Array(4),
+      new Array(4),
+      new Array(4)
+    ];
+
     this.board.forEach((row) => {
       row.fill(0);
     });
@@ -77,10 +82,15 @@ export default class Model {
   }
 
   moveLeft () {
+
+    function filterZeros (arr) {
+      return arr.filter((number) => number !== 0)
+    }
+
     this.board = this.board.map((row, rowIndex) => {
       // create an array with all the numbers together
       // and no zeros
-      let shiftedRow = row.filter((number) => number !== 0)
+      let shiftedRow = filterZeros(row);
 
       // row is empty, do nothing
       if (shiftedRow.length === 0) return row;
@@ -91,24 +101,17 @@ export default class Model {
           arr[index-1] = currentNum * 2;
           // remove second number
           arr[index] = 0;
-          /* bug when three consecutive tiles are equal 
-              [2,2,2,0]
-            <--
-            [4,4,0,0] is the result
-            [4,2,0,0] is the expected result
-          */
         }
-        return currentNum
+        return arr[index];
       })
 
       // may contain zeros now
       // lets filter them out
-      shiftedRow = shiftedRow.filter((number) => {
-        return number !== 0;
-      })
+      // so all numbers are on the left
+      shiftedRow = filterZeros(shiftedRow);
 
       if (shiftedRow.length < row.length) {
-        // fill the rest of the row with zeros
+        // fill the end of the row with zeros
         const startFilling = shiftedRow.length
         shiftedRow.length = row.length;
         shiftedRow.fill(0, startFilling);

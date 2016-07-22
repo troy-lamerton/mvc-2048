@@ -96,8 +96,8 @@ var Model = function () {
   function Model() {
     _classCallCheck(this, Model);
 
-    console.log('model constructed');
     this.board = [new Array(4), new Array(4), new Array(4), new Array(4)];
+
     this.board.forEach(function (row) {
       row.fill(0);
     });
@@ -189,12 +189,17 @@ var Model = function () {
   }, {
     key: 'moveLeft',
     value: function moveLeft() {
+
+      function filterZeros(arr) {
+        return arr.filter(function (number) {
+          return number !== 0;
+        });
+      }
+
       this.board = this.board.map(function (row, rowIndex) {
         // create an array with all the numbers together
         // and no zeros
-        var shiftedRow = row.filter(function (number) {
-          return number !== 0;
-        });
+        var shiftedRow = filterZeros(row);
 
         // row is empty, do nothing
         if (shiftedRow.length === 0) return row;
@@ -205,15 +210,19 @@ var Model = function () {
             arr[index - 1] = currentNum * 2;
             // remove second number
             arr[index] = 0;
+            /* bug when three consecutive tiles are equal 
+                [2,2,2,0]
+              <--
+              [4,4,0,0] is the result
+              [4,2,0,0] is the expected result
+            */
           }
-          return currentNum;
+          return arr[index];
         });
 
         // may contain zeros now
         // lets filter them out
-        shiftedRow = shiftedRow.filter(function (number) {
-          return number !== 0;
-        });
+        shiftedRow = filterZeros(shiftedRow);
 
         if (shiftedRow.length < row.length) {
           // fill the rest of the row with zeros
@@ -243,6 +252,13 @@ var Model = function () {
     key: 'updateScore',
     value: function updateScore() {
       this.score = this.highestNumber();
+    }
+  }, {
+    key: 'canMove',
+    value: function canMove() {
+      // check there is at least one empty tile
+      // check that at least two adjacent tiles are equal
+      // return false if both are false
     }
   }]);
 
@@ -280,9 +296,6 @@ var Router = function () {
   function Router() {
     _classCallCheck(this, Router);
 
-    // is there a global place I can store this instead? e.g. process / env variable
-    // otherwise will have to pass platform to controller, and then to view
-    console.log(_controller2.default);
     this.controller = new _controller2.default();
   }
 
@@ -372,12 +385,20 @@ var View = function () {
     value: function render(model) {
       var _table;
 
-      this.table = new _cliTable2.default({});
-      (_table = this.table).push.apply(_table, _toConsumableArray(model.board));
-      (0, _clear2.default)();
-      console.log(this.table.toString());
-      console.log('-----------------');
-      console.log('Score:', model.score);
+      switch (global.platform) {
+        case 'console':
+          this.table = new _cliTable2.default({});
+          (_table = this.table).push.apply(_table, _toConsumableArray(model.board));
+          (0, _clear2.default)();
+          console.log(this.table.toString());
+          console.log('-----------------');
+          console.log('Score:', model.score);
+          break;
+
+        case 'browser':
+          console.log('view.render(..) in browser');
+          break;
+      }
     }
   }]);
 
