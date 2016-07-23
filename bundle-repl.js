@@ -102,6 +102,8 @@ var Model = function () {
       row.fill(0);
     });
     this.score = 0;
+    this.gameIsOver = false;
+    this.gameOverMessage = ''; // indicating if you won or lost
   }
 
   _createClass(Model, [{
@@ -149,6 +151,11 @@ var Model = function () {
 
         amount--;
       }
+    }
+  }, {
+    key: 'beforeMove',
+    value: function beforeMove(direction) {
+      this[direction]();
     }
   }, {
     key: 'up',
@@ -247,12 +254,16 @@ var Model = function () {
     key: 'updateScore',
     value: function updateScore() {
       this.score = this.highestNumber();
+      if (!this.canMove()) {
+        this.gameIsOver = true;
+        this.gameOverMessage = 'You didn\'t reach 2048, try again? (Press R)';
+      }
     }
   }, {
     key: 'canMove',
     value: function canMove() {
       // check there is at least one empty tile
-      if (emptyTileExists()) return true;
+      if (this.emptyTileExists()) return true;
 
       // check if two adjacent numbers are equal
       /* Iterate over ever number, row by row,
@@ -281,7 +292,7 @@ var Model = function () {
 
 exports.default = Model;
 
-},{"transpose":21}],4:[function(require,module,exports){
+},{"transpose":32}],4:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -359,7 +370,7 @@ var Router = function () {
 
 exports.default = Router;
 
-},{"./controller":2,"ctrl-c":19,"keypress":20}],5:[function(require,module,exports){
+},{"./controller":2,"ctrl-c":30,"keypress":31}],5:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -375,6 +386,10 @@ var _cliTable2 = _interopRequireDefault(_cliTable);
 var _clear = require('clear');
 
 var _clear2 = _interopRequireDefault(_clear);
+
+var _colors = require('colors');
+
+var _colors2 = _interopRequireDefault(_colors);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -406,7 +421,8 @@ var View = function () {
           (0, _clear2.default)();
           console.log(this.table.toString());
           console.log('-----------------');
-          console.log('Score:', model.score);
+          console.log('Score:', model.score.yellow);
+          console.log(model.gameOverMessage.bold);
           break;
 
         case 'browser':
@@ -421,7 +437,7 @@ var View = function () {
 
 exports.default = View;
 
-},{"clear":6,"cli-table":7}],6:[function(require,module,exports){
+},{"clear":6,"cli-table":7,"colors":23}],6:[function(require,module,exports){
 module.exports = function(clear) {
   if (clear !== false) {
     process.stdout.write('\033[2J');
@@ -1339,6 +1355,441 @@ module.exports = (function () {
 var colors = require('./lib/colors');
 module['exports'] = colors;
 },{"./lib/colors":9}],19:[function(require,module,exports){
+/*
+
+The MIT License (MIT)
+
+Original Library 
+  - Copyright (c) Marak Squires
+
+Additional functionality
+ - Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com)
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+
+*/
+
+var colors = {};
+module['exports'] = colors;
+
+colors.themes = {};
+
+var ansiStyles = colors.styles = require('./styles');
+var defineProps = Object.defineProperties;
+
+colors.supportsColor = require('./system/supports-colors');
+
+if (typeof colors.enabled === "undefined") {
+  colors.enabled = colors.supportsColor;
+}
+
+colors.stripColors = colors.strip = function(str){
+  return ("" + str).replace(/\x1B\[\d+m/g, '');
+};
+
+
+var stylize = colors.stylize = function stylize (str, style) {
+  if (!colors.enabled) {
+    return str+'';
+  }
+
+  return ansiStyles[style].open + str + ansiStyles[style].close;
+}
+
+var matchOperatorsRe = /[|\\{}()[\]^$+*?.]/g;
+var escapeStringRegexp = function (str) {
+  if (typeof str !== 'string') {
+    throw new TypeError('Expected a string');
+  }
+  return str.replace(matchOperatorsRe,  '\\$&');
+}
+
+function build(_styles) {
+  var builder = function builder() {
+    return applyStyle.apply(builder, arguments);
+  };
+  builder._styles = _styles;
+  // __proto__ is used because we must return a function, but there is
+  // no way to create a function with a different prototype.
+  builder.__proto__ = proto;
+  return builder;
+}
+
+var styles = (function () {
+  var ret = {};
+  ansiStyles.grey = ansiStyles.gray;
+  Object.keys(ansiStyles).forEach(function (key) {
+    ansiStyles[key].closeRe = new RegExp(escapeStringRegexp(ansiStyles[key].close), 'g');
+    ret[key] = {
+      get: function () {
+        return build(this._styles.concat(key));
+      }
+    };
+  });
+  return ret;
+})();
+
+var proto = defineProps(function colors() {}, styles);
+
+function applyStyle() {
+  var args = arguments;
+  var argsLen = args.length;
+  var str = argsLen !== 0 && String(arguments[0]);
+  if (argsLen > 1) {
+    for (var a = 1; a < argsLen; a++) {
+      str += ' ' + args[a];
+    }
+  }
+
+  if (!colors.enabled || !str) {
+    return str;
+  }
+
+  var nestedStyles = this._styles;
+
+  var i = nestedStyles.length;
+  while (i--) {
+    var code = ansiStyles[nestedStyles[i]];
+    str = code.open + str.replace(code.closeRe, code.open) + code.close;
+  }
+
+  return str;
+}
+
+function applyTheme (theme) {
+  for (var style in theme) {
+    (function(style){
+      colors[style] = function(str){
+        if (typeof theme[style] === 'object'){
+          var out = str;
+          for (var i in theme[style]){
+            out = colors[theme[style][i]](out);
+          }
+          return out;
+        }
+        return colors[theme[style]](str);
+      };
+    })(style)
+  }
+}
+
+colors.setTheme = function (theme) {
+  if (typeof theme === 'string') {
+    try {
+      colors.themes[theme] = require(theme);
+      applyTheme(colors.themes[theme]);
+      return colors.themes[theme];
+    } catch (err) {
+      console.log(err);
+      return err;
+    }
+  } else {
+    applyTheme(theme);
+  }
+};
+
+function init() {
+  var ret = {};
+  Object.keys(styles).forEach(function (name) {
+    ret[name] = {
+      get: function () {
+        return build([name]);
+      }
+    };
+  });
+  return ret;
+}
+
+var sequencer = function sequencer (map, str) {
+  var exploded = str.split(""), i = 0;
+  exploded = exploded.map(map);
+  return exploded.join("");
+};
+
+// custom formatter methods
+colors.trap = require('./custom/trap');
+colors.zalgo = require('./custom/zalgo');
+
+// maps
+colors.maps = {};
+colors.maps.america = require('./maps/america');
+colors.maps.zebra = require('./maps/zebra');
+colors.maps.rainbow = require('./maps/rainbow');
+colors.maps.random = require('./maps/random')
+
+for (var map in colors.maps) {
+  (function(map){
+    colors[map] = function (str) {
+      return sequencer(colors.maps[map], str);
+    }
+  })(map)
+}
+
+defineProps(colors, init());
+},{"./custom/trap":20,"./custom/zalgo":21,"./maps/america":24,"./maps/rainbow":25,"./maps/random":26,"./maps/zebra":27,"./styles":28,"./system/supports-colors":29}],20:[function(require,module,exports){
+arguments[4][10][0].apply(exports,arguments)
+},{"dup":10}],21:[function(require,module,exports){
+// please no
+module['exports'] = function zalgo(text, options) {
+  text = text || "   he is here   ";
+  var soul = {
+    "up" : [
+      '̍', '̎', '̄', '̅',
+      '̿', '̑', '̆', '̐',
+      '͒', '͗', '͑', '̇',
+      '̈', '̊', '͂', '̓',
+      '̈', '͊', '͋', '͌',
+      '̃', '̂', '̌', '͐',
+      '̀', '́', '̋', '̏',
+      '̒', '̓', '̔', '̽',
+      '̉', 'ͣ', 'ͤ', 'ͥ',
+      'ͦ', 'ͧ', 'ͨ', 'ͩ',
+      'ͪ', 'ͫ', 'ͬ', 'ͭ',
+      'ͮ', 'ͯ', '̾', '͛',
+      '͆', '̚'
+    ],
+    "down" : [
+      '̖', '̗', '̘', '̙',
+      '̜', '̝', '̞', '̟',
+      '̠', '̤', '̥', '̦',
+      '̩', '̪', '̫', '̬',
+      '̭', '̮', '̯', '̰',
+      '̱', '̲', '̳', '̹',
+      '̺', '̻', '̼', 'ͅ',
+      '͇', '͈', '͉', '͍',
+      '͎', '͓', '͔', '͕',
+      '͖', '͙', '͚', '̣'
+    ],
+    "mid" : [
+      '̕', '̛', '̀', '́',
+      '͘', '̡', '̢', '̧',
+      '̨', '̴', '̵', '̶',
+      '͜', '͝', '͞',
+      '͟', '͠', '͢', '̸',
+      '̷', '͡', ' ҉'
+    ]
+  },
+  all = [].concat(soul.up, soul.down, soul.mid),
+  zalgo = {};
+
+  function randomNumber(range) {
+    var r = Math.floor(Math.random() * range);
+    return r;
+  }
+
+  function is_char(character) {
+    var bool = false;
+    all.filter(function (i) {
+      bool = (i === character);
+    });
+    return bool;
+  }
+  
+
+  function heComes(text, options) {
+    var result = '', counts, l;
+    options = options || {};
+    options["up"] =   typeof options["up"]   !== 'undefined' ? options["up"]   : true;
+    options["mid"] =  typeof options["mid"]  !== 'undefined' ? options["mid"]  : true;
+    options["down"] = typeof options["down"] !== 'undefined' ? options["down"] : true;
+    options["size"] = typeof options["size"] !== 'undefined' ? options["size"] : "maxi";
+    text = text.split('');
+    for (l in text) {
+      if (is_char(l)) {
+        continue;
+      }
+      result = result + text[l];
+      counts = {"up" : 0, "down" : 0, "mid" : 0};
+      switch (options.size) {
+      case 'mini':
+        counts.up = randomNumber(8);
+        counts.mid = randomNumber(2);
+        counts.down = randomNumber(8);
+        break;
+      case 'maxi':
+        counts.up = randomNumber(16) + 3;
+        counts.mid = randomNumber(4) + 1;
+        counts.down = randomNumber(64) + 3;
+        break;
+      default:
+        counts.up = randomNumber(8) + 1;
+        counts.mid = randomNumber(6) / 2;
+        counts.down = randomNumber(8) + 1;
+        break;
+      }
+
+      var arr = ["up", "mid", "down"];
+      for (var d in arr) {
+        var index = arr[d];
+        for (var i = 0 ; i <= counts[index]; i++) {
+          if (options[index]) {
+            result = result + soul[index][randomNumber(soul[index].length)];
+          }
+        }
+      }
+    }
+    return result;
+  }
+  // don't summon him
+  return heComes(text, options);
+}
+
+},{}],22:[function(require,module,exports){
+var colors = require('./colors');
+
+module['exports'] = function () {
+
+  //
+  // Extends prototype of native string object to allow for "foo".red syntax
+  //
+  var addProperty = function (color, func) {
+    String.prototype.__defineGetter__(color, func);
+  };
+
+  var sequencer = function sequencer (map, str) {
+      return function () {
+        var exploded = this.split(""), i = 0;
+        exploded = exploded.map(map);
+        return exploded.join("");
+      }
+  };
+
+  addProperty('strip', function () {
+    return colors.strip(this);
+  });
+
+  addProperty('stripColors', function () {
+    return colors.strip(this);
+  });
+
+  addProperty("trap", function(){
+    return colors.trap(this);
+  });
+
+  addProperty("zalgo", function(){
+    return colors.zalgo(this);
+  });
+
+  addProperty("zebra", function(){
+    return colors.zebra(this);
+  });
+
+  addProperty("rainbow", function(){
+    return colors.rainbow(this);
+  });
+
+  addProperty("random", function(){
+    return colors.random(this);
+  });
+
+  addProperty("america", function(){
+    return colors.america(this);
+  });
+
+  //
+  // Iterate through all default styles and colors
+  //
+  var x = Object.keys(colors.styles);
+  x.forEach(function (style) {
+    addProperty(style, function () {
+      return colors.stylize(this, style);
+    });
+  });
+
+  function applyTheme(theme) {
+    //
+    // Remark: This is a list of methods that exist
+    // on String that you should not overwrite.
+    //
+    var stringPrototypeBlacklist = [
+      '__defineGetter__', '__defineSetter__', '__lookupGetter__', '__lookupSetter__', 'charAt', 'constructor',
+      'hasOwnProperty', 'isPrototypeOf', 'propertyIsEnumerable', 'toLocaleString', 'toString', 'valueOf', 'charCodeAt',
+      'indexOf', 'lastIndexof', 'length', 'localeCompare', 'match', 'replace', 'search', 'slice', 'split', 'substring',
+      'toLocaleLowerCase', 'toLocaleUpperCase', 'toLowerCase', 'toUpperCase', 'trim', 'trimLeft', 'trimRight'
+    ];
+
+    Object.keys(theme).forEach(function (prop) {
+      if (stringPrototypeBlacklist.indexOf(prop) !== -1) {
+        console.log('warn: '.red + ('String.prototype' + prop).magenta + ' is probably something you don\'t want to override. Ignoring style name');
+      }
+      else {
+        if (typeof(theme[prop]) === 'string') {
+          colors[prop] = colors[theme[prop]];
+          addProperty(prop, function () {
+            return colors[theme[prop]](this);
+          });
+        }
+        else {
+          addProperty(prop, function () {
+            var ret = this;
+            for (var t = 0; t < theme[prop].length; t++) {
+              ret = colors[theme[prop][t]](ret);
+            }
+            return ret;
+          });
+        }
+      }
+    });
+  }
+
+  colors.setTheme = function (theme) {
+    if (typeof theme === 'string') {
+      try {
+        colors.themes[theme] = require(theme);
+        applyTheme(colors.themes[theme]);
+        return colors.themes[theme];
+      } catch (err) {
+        console.log(err);
+        return err;
+      }
+    } else {
+      applyTheme(theme);
+    }
+  };
+
+};
+},{"./colors":19}],23:[function(require,module,exports){
+var colors = require('./colors');
+module['exports'] = colors;
+
+// Remark: By default, colors will add style properties to String.prototype
+//
+// If you don't wish to extend String.prototype you can do this instead and native String will not be touched
+//
+//   var colors = require('colors/safe);
+//   colors.red("foo")
+//
+//
+require('./extendStringPrototype')();
+},{"./colors":19,"./extendStringPrototype":22}],24:[function(require,module,exports){
+arguments[4][12][0].apply(exports,arguments)
+},{"../colors":19,"dup":12}],25:[function(require,module,exports){
+arguments[4][13][0].apply(exports,arguments)
+},{"../colors":19,"dup":13}],26:[function(require,module,exports){
+arguments[4][14][0].apply(exports,arguments)
+},{"../colors":19,"dup":14}],27:[function(require,module,exports){
+arguments[4][15][0].apply(exports,arguments)
+},{"../colors":19,"dup":15}],28:[function(require,module,exports){
+arguments[4][16][0].apply(exports,arguments)
+},{"dup":16}],29:[function(require,module,exports){
+arguments[4][17][0].apply(exports,arguments)
+},{"dup":17}],30:[function(require,module,exports){
 "use strict";
 
 // Dependencies
@@ -1378,7 +1829,7 @@ process.stdin.on("keypress", function (ch, key) {
 });
 
 module.exports = CtrlC;
-},{"keypress":20}],20:[function(require,module,exports){
+},{"keypress":31}],31:[function(require,module,exports){
 
 /**
  * Module dependencies.
@@ -1788,7 +2239,7 @@ function emitKey(stream, s) {
   }
 }
 
-},{"events":undefined,"string_decoder":undefined}],21:[function(require,module,exports){
+},{"events":undefined,"string_decoder":undefined}],32:[function(require,module,exports){
 function transpose(m) {
   var mt;
 

@@ -58,7 +58,13 @@ export default class Model {
       amount--;
     }
   }
-  
+
+  checkThenMove (direction) {
+    if (this.gameIsOver()) return;
+
+    this[direction]();
+  }
+
   up () {
     this.board = transpose(this.board)
     this.moveLeft()
@@ -141,7 +147,7 @@ export default class Model {
 
   updateScore () {
     this.score = this.highestNumber();
-    if (!canMove()) {
+    if (!this.canMove()) {
       this.gameIsOver = true;
       this.gameOverMessage = 'You didn\'t reach 2048, try again? (Press R)';
     }
@@ -149,7 +155,7 @@ export default class Model {
 
   canMove () {
     // check there is at least one empty tile
-    if (emptyTileExists()) return true;
+    if (this.emptyTileExists()) return true;
 
     // check if two adjacent numbers are equal
     /* Iterate over ever number, row by row,

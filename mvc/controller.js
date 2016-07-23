@@ -10,22 +10,22 @@ export default class Controller {
   }
 
   up () {
-    this.model.up();
+    this.model.checkThenMove('up');
     this.view.render(this.model)
   }
 
   right () {
-    this.model.right();
+    this.model.checkThenMove('right';
     this.view.render(this.model)
   }
 
   down () {
-    this.model.down();
+    this.model.checkThenMove('down');
     this.view.render(this.model)
   }
 
   left () {
-    this.model.left();
+    this.model.checkThenMove('left');
     this.view.render(this.model)
   }
 
