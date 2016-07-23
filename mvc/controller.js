@@ -15,7 +15,7 @@ export default class Controller {
   }
 
   right () {
-    this.model.checkThenMove('right';
+    this.model.checkThenMove('right');
     this.view.render(this.model)
   }
 
