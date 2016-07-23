@@ -13,28 +13,38 @@ export default class View {
   render (model) {
     switch (global.platform) {
       case 'console':
-        // change colors of numbers
+
+        // change color of zeros
         const formattedBoard = model.board.map((row) => {
           return row.map((number) => {
             if (number === 0) return number.toString().black 
             else return number.toString();
           })
         })
+
         this.table = new Table({
           colAligns: new Array(4).fill('middle'),
         });
         this.table.push(...formattedBoard);
+
         clear();
         console.log(this.table.toString());
+        
         const line = '-------------------------';
+        
         console.log((model.gameIsOver)?line.red:line);
-        console.log('Score:', model.score.toString().yellow);
+
+        const scoreString = (model.score >= 2048) ? 
+          model.score.toString().bold.green :
+          model.score.toString().yellow
+        console.log('Score:', );
         console.log('\n', model.gameStatus.bold);
         break;
 
       case 'browser':
         console.log('view.render(..) in browser')
         break;
+        
     }
   }
 

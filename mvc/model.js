@@ -18,7 +18,7 @@ export default class Model {
   }
 
   init () {
-    this.addRandomNums(2)
+    this.addRandomNums(2);
   }
 
   emptyTileExists () {
