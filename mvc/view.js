@@ -16,15 +16,18 @@ export default class View {
         // change colors of numbers
         const formattedBoard = model.board.map((row) => {
           return row.map((number) => {
-            let numString = number.toString()
-            return formattedBoard;
+            if (number === 0) return number.toString().black 
+            else return number.toString();
           })
         })
-        this.table = new Table({colAligns: ['middle','middle']});
-        this.table.push(...model.board);
+        this.table = new Table({
+          colAligns: new Array(4).fill('middle'),
+        });
+        this.table.push(...formattedBoard);
         clear();
         console.log(this.table.toString());
-        console.log('-------------------------');
+        const line = '-------------------------';
+        console.log((model.gameIsOver)?line.red:line);
         console.log('Score:', model.score.toString().yellow);
         console.log('\n', model.gameStatus.bold);
         break;

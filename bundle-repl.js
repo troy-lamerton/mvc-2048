@@ -103,7 +103,7 @@ var Model = function () {
     });
     this.score = 0;
     this.gameIsOver = false;
-    this.gameStatus = 'Use the arrow keys to move the numbers'; // indicating if you won or lost
+    this.gameStatus = 'Use the arrow keys to move the numbers';
   }
 
   _createClass(Model, [{
@@ -126,7 +126,7 @@ var Model = function () {
       // 70% chance new number is a 2
       // 30% new number is a 4
       function twoOrFour() {
-        if (Math.random() < 0.7) return 2;else return 4;
+        if (Math.random() < 0.7) return 2;else return 256;
       }
 
       function getRandIndex() {
@@ -418,34 +418,32 @@ var View = function () {
   }, {
     key: 'render',
     value: function render(model) {
-      var _this = this;
+      var _table;
 
-      (function () {
-        var _table;
-
-        switch (global.platform) {
-          case 'console':
-            // change colors of numbers
-            var formattedBoard = model.board.map(function (row) {
-              return row.map(function (number) {
-                var numString = number.toString();
-                return formattedBoard;
-              });
+      switch (global.platform) {
+        case 'console':
+          // change colors of numbers
+          var formattedBoard = model.board.map(function (row) {
+            return row.map(function (number) {
+              if (number === 0) return number.toString().black;else return number.toString();
             });
-            _this.table = new _cliTable2.default({ colAligns: ['middle', 'middle'] });
-            (_table = _this.table).push.apply(_table, _toConsumableArray(model.board));
-            (0, _clear2.default)();
-            console.log(_this.table.toString());
-            console.log('-------------------------');
-            console.log('Score:', model.score.toString().yellow);
-            console.log('\n', model.gameStatus.bold);
-            break;
+          });
+          this.table = new _cliTable2.default({
+            colAligns: new Array(4).fill('middle')
+          });
+          (_table = this.table).push.apply(_table, _toConsumableArray(formattedBoard));
+          (0, _clear2.default)();
+          console.log(this.table.toString());
+          var line = '-------------------------';
+          console.log(model.gameIsOver ? line.red : line);
+          console.log('Score:', model.score.toString().yellow);
+          console.log('\n', model.gameStatus.bold);
+          break;
 
-          case 'browser':
-            console.log('view.render(..) in browser');
-            break;
-        }
-      })();
+        case 'browser':
+          console.log('view.render(..) in browser');
+          break;
+      }
     }
   }]);
 
