@@ -42,6 +42,9 @@ export default class Router {
         break;
       case 'browser':
         // handle document keypress events
+        document.addEventListener('keydown', (e) => {
+          console.log(e);
+        })
         break;
     }
   }
