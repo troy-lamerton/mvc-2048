@@ -14,7 +14,7 @@ export default class Model {
     });
     this.score = 0;
     this.gameIsOver = false;
-    this.gameOverMessage = ''; // indicating if you won or lost
+    this.gameStatus = 'Use the arrow keys to move the numbers';
   }
 
   init () {
@@ -60,7 +60,7 @@ export default class Model {
   }
 
   checkThenMove (direction) {
-    if (this.gameIsOver()) return;
+    if (this.gameIsOver) return;
 
     this[direction]();
   }
@@ -132,7 +132,7 @@ export default class Model {
   }
 
   afterMovement () {
-    this.addRandomNums();
+    this.addRandomNums(1);
     this.updateScore();
   }
 
@@ -147,14 +147,16 @@ export default class Model {
 
   updateScore () {
     this.score = this.highestNumber();
-    if (!this.canMove()) {
+    if (this.score >= 2048) {
+      this.gameStatus = 'You win! 2048!!! Keep playing if you wish...'
+    } else if (!this.canMove()) {
       this.gameIsOver = true;
-      this.gameOverMessage = 'You didn\'t reach 2048, try again? (Press R)';
+      this.gameStatus = 'You can\'t make anymore moves, play again? (Press R)';
     }
   }
 
   canMove () {
-    // check there is at least one empty tile
+    // check there is at least one zero number
     if (this.emptyTileExists()) return true;
 
     // check if two adjacent numbers are equal

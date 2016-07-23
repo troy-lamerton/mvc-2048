@@ -34,6 +34,8 @@ export default class Router {
               default:
                 // unhandled key, do nothing
             }
+          } else if (ch.toLowerCase() === 'r') {
+            this.controller = new Controller();
           }
         })
 
