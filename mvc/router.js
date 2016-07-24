@@ -58,6 +58,7 @@ export default class Router {
             case 'ArrowLeft':
               this.controller.left();
               break;
+            case 'r':
             case 'R':
               this.controller = new Controller();
             default:

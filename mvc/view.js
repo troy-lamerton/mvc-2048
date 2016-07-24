@@ -43,8 +43,26 @@ export default class View {
         break;
 
       case 'browser':
-        const htmlTable = tableify(model.board);
-        document.querySelector('#game').innerHTML = (htmlTable);
+        const removedZerosBoard = model.board.map((row) => {
+          return row.map((num) => {
+            if (num === 0) return '';
+            else return num;
+          })
+        });
+        const htmlTable = tableify(removedZerosBoard);
+
+        const score = document.createElement('p');
+        score.className = 'score';
+        score.innerHTML = 'Score: ' + model.score.toString();
+
+        const message = document.createElement('p');
+        message.innerHTML = model.gameStatus;
+        
+        document.querySelector('#game').innerHTML = '';
+
+        document.querySelector('#game').appendChild(score)
+        document.querySelector('#game').innerHTML += (htmlTable);
+        document.querySelector('#game').appendChild(message)
         break;
         
     }

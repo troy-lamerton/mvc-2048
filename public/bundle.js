@@ -259,7 +259,7 @@ var Model = function () {
     key: 'updateScore',
     value: function updateScore() {
       this.score = this.highestNumber();
-      if (this.score >= 2048) {
+      if (this.score >= 256) {
         this.gameStatus = 'You win! 2048!!! Keep playing if you wish...';
       } else if (!this.canMove()) {
         this.gameIsOver = true;
@@ -382,6 +382,7 @@ var Router = function () {
               case 'ArrowLeft':
                 _this.controller.left();
                 break;
+              case 'r':
               case 'R':
                 _this.controller = new _controller2.default();
               default:
@@ -476,8 +477,25 @@ var View = function () {
           break;
 
         case 'browser':
-          var htmlTable = (0, _tableify2.default)(model.board);
-          document.querySelector('#game').innerHTML = htmlTable;
+          var removedZerosBoard = model.board.map(function (row) {
+            return row.map(function (num) {
+              if (num === 0) return '';else return num;
+            });
+          });
+          var htmlTable = (0, _tableify2.default)(removedZerosBoard);
+
+          var score = document.createElement('p');
+          score.className = 'score';
+          score.innerHTML = 'Score: ' + model.score.toString();
+
+          var message = document.createElement('p');
+          message.innerHTML = model.gameStatus;
+
+          document.querySelector('#game').innerHTML = '';
+
+          document.querySelector('#game').appendChild(score);
+          document.querySelector('#game').innerHTML += htmlTable;
+          document.querySelector('#game').appendChild(message);
           break;
 
       }
