@@ -42,7 +42,8 @@ export default class View {
         break;
 
       case 'browser':
-        
+        const htmlTable = ''; //run my package on model.board
+        document.querySelector('#game').innerHTML = (htmlTable);
         break;
         
     }

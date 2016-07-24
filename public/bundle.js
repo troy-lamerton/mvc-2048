@@ -8,7 +8,8 @@ var _router2 = _interopRequireDefault(_router);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-global.platform = 'browser'; // set to 'browser' or 'console'
+// set to 'browser' or 'console'
+global.platform = 'browser';
 
 var router = new _router2.default();
 
@@ -298,7 +299,7 @@ var Model = function () {
 
 exports.default = Model;
 
-},{"transpose":31}],4:[function(require,module,exports){
+},{"transpose":32}],4:[function(require,module,exports){
 (function (process,global){
 'use strict';
 
@@ -316,6 +317,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
+/* Comment out the two imports below to play in browser */
 // import keypress from 'keypress'
 // import CtrlC from 'ctrl-c'
 
@@ -332,8 +334,6 @@ var Router = function () {
     value: function listen() {
       var _this = this;
 
-      console.log('here');
-      console.log('global', global);
       switch (global.platform) {
         case 'console':
           keypress(process.stdin);
@@ -368,7 +368,25 @@ var Router = function () {
         case 'browser':
           // handle document keypress events
           document.addEventListener('keydown', function (e) {
-            console.log(e.key);
+
+            switch (e.key) {
+              case 'ArrowUp':
+                _this.controller.up();
+                break;
+              case 'ArrowRight':
+                _this.controller.right();
+                break;
+              case 'ArrowDown':
+                _this.controller.down();
+                break;
+              case 'ArrowLeft':
+                _this.controller.left();
+                break;
+              case 'R':
+                _this.controller = new _controller2.default();
+              default:
+              // unhandled key, do nothing
+            }
           });
           break;
       }
@@ -402,6 +420,10 @@ var _clear2 = _interopRequireDefault(_clear);
 var _colors = require('colors');
 
 var _colors2 = _interopRequireDefault(_colors);
+
+var _tableify = require('tableify');
+
+var _tableify2 = _interopRequireDefault(_tableify);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -454,7 +476,8 @@ var View = function () {
           break;
 
         case 'browser':
-          console.log('view.render(..) in browser');
+          var htmlTable = (0, _tableify2.default)({ 'board': model.board });
+          document.querySelector('#game').innerHTML = htmlTable;
           break;
 
       }
@@ -467,7 +490,7 @@ var View = function () {
 exports.default = View;
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"clear":6,"cli-table":7,"colors":23}],6:[function(require,module,exports){
+},{"clear":6,"cli-table":7,"colors":23,"tableify":31}],6:[function(require,module,exports){
 (function (process){
 module.exports = function(clear) {
   if (clear !== false) {
@@ -1945,6 +1968,118 @@ process.chdir = function (dir) {
 process.umask = function() { return 0; };
 
 },{}],31:[function(require,module,exports){
+"use strict";
+
+module.exports = tableify;
+
+function tableify(obj, columns, parents) {
+    var buf = [];
+    var type = typeof obj;
+    var cols;
+
+    parents = parents || [];
+
+    if (type !== 'object' || obj == null || obj == undefined) {
+    }
+    else if (~parents.indexOf(obj)) {
+        return "[Circular]";
+    }
+    else {
+        parents.push(obj);
+    }
+
+    if (Array.isArray(obj)) {
+        if (typeof obj[0] === 'object') {
+            buf.push('<table>','<thead>','<tr>');
+
+            //loop through every object and get unique keys
+            var keys = {};
+            obj.forEach(function (o) {
+                if (typeof o === 'object' && !Array.isArray(o)) {
+                    Object.keys(o).forEach(function (k) {
+                        keys[k] = true;
+                    });
+                }
+            });
+
+            cols = Object.keys(keys);
+
+            cols.forEach(function (key) {
+                buf.push('<th' + getClass(obj[0][key]) + '>', key, '</th>');
+            });
+
+            buf.push('</tr>', '</thead>', '<tbody>');
+
+            obj.forEach(function (record) {
+                buf.push('<tr>');
+                buf.push(tableify(record, cols, parents));
+                buf.push('</tr>');
+            });
+
+            buf.push('</tbody></table>');
+        }
+        else {
+            buf.push('<table>','<tbody>');
+            cols = [];
+            
+            obj.forEach(function (val, ix) {
+                cols.push(ix);
+                buf.push('<tr>', '<td' + getClass(val) + '>', tableify(val, cols, parents), '</td>', '</tr>');
+            });
+            
+            buf.push('</tbody>','</table>');
+        }
+        
+    }
+    else if (obj && typeof obj === 'object' && !Array.isArray(obj) && !(obj instanceof Date)) {
+        if (!columns) {
+            buf.push('<table>');
+
+            Object.keys(obj).forEach(function (key) {
+                buf.push('<tr>', '<th' + getClass(obj[key]) + '>', key, '</th>', '<td' + getClass(obj[key]) + '>', tableify(obj[key], false, parents), '</td>', '</tr>');
+            });
+
+            buf.push('</table>');
+        }
+        else {
+            columns.forEach(function (key) {
+                if (typeof obj[key] === 'object' && !Array.isArray(obj[key])) {
+                    buf.push('<td' + getClass(obj[key]) + '>', tableify(obj[key], false, parents), '</td>');
+                }
+                else {
+                    buf.push('<td' + getClass(obj[key]) + '>', tableify(obj[key], columns, parents), '</td>');
+                }
+            });
+        }
+    }
+    else {
+        buf.push(obj);
+    }
+
+    if (type !== 'object' || obj == null || obj == undefined) {
+    }
+    else {
+        parents.pop(obj);
+    }
+
+    return buf.join('');
+}
+
+function getClass(obj) {
+    return ' class="' 
+        + ((obj && obj.constructor)
+            ? obj.constructor.name 
+            : typeof obj
+        ).toLowerCase()
+        + ((obj === null)
+            ? ' null'
+            : ''
+        )
+        + '"'
+        ;
+}
+
+},{}],32:[function(require,module,exports){
 function transpose(m) {
   var mt;
 
