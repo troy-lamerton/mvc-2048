@@ -37,12 +37,12 @@ export default class View {
         const scoreString = (model.score >= 2048) ? 
           model.score.toString().bold.green :
           model.score.toString().yellow
-        console.log('Score:', );
+        console.log('Score:', scoreString);
         console.log('\n', model.gameStatus.bold);
         break;
 
       case 'browser':
-        console.log('view.render(..) in browser')
+        
         break;
         
     }

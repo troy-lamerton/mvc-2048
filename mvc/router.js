@@ -1,6 +1,7 @@
 import Controller from './controller'
-import keypress from 'keypress'
-import CtrlC from 'ctrl-c'
+/* Comment out the two imports below to play in browser */
+// import keypress from 'keypress'
+// import CtrlC from 'ctrl-c'
 
 
 export default class Router {
@@ -43,7 +44,26 @@ export default class Router {
       case 'browser':
         // handle document keypress events
         document.addEventListener('keydown', (e) => {
-          console.log(e);
+
+          switch (e.key) {
+            case 'ArrowUp':
+              this.controller.up();
+              break;
+            case 'ArrowRight':
+              this.controller.right();
+              break;
+            case 'ArrowDown':
+              this.controller.down();
+              break;
+            case 'ArrowLeft':
+              this.controller.left();
+              break;
+            default:
+              // unhandled key, do nothing
+            }
+
+          }
+
         })
         break;
     }
