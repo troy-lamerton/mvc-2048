@@ -476,7 +476,7 @@ var View = function () {
           break;
 
         case 'browser':
-          var htmlTable = (0, _tableify2.default)({ 'board': model.board });
+          var htmlTable = (0, _tableify2.default)(model.board);
           document.querySelector('#game').innerHTML = htmlTable;
           break;
 
@@ -1989,7 +1989,26 @@ function tableify(obj, columns, parents) {
     }
 
     if (Array.isArray(obj)) {
-        if (typeof obj[0] === 'object') {
+        if (obj.every(Array.isArray)) {
+            buf.push('<table>','<tbody>');
+            cols = [];
+            
+            // 2D array is an array of rows
+            obj.forEach(function (row, ix) {
+                cols.push(ix);
+
+                buf.push('<tr>');
+
+                row.forEach(function (val) {
+                    buf.push('<td' + getClass(val) + '>', tableify(val, cols, parents), '</td>')
+                })
+                
+                buf.push('</tr>');
+            });
+            
+            buf.push('</tbody>','</table>');
+        }
+        else if (typeof obj[0] === 'object') {
             buf.push('<table>','<thead>','<tr>');
 
             //loop through every object and get unique keys

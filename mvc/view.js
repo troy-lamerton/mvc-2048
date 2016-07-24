@@ -1,6 +1,7 @@
 import Table from 'cli-table'
 import clear from 'clear'
 import colors from 'colors'
+import tableify from 'tableify'
 
 export default class View {
   constructor () {
@@ -42,7 +43,7 @@ export default class View {
         break;
 
       case 'browser':
-        const htmlTable = ''; //run my package on model.board
+        const htmlTable = tableify(model.board);
         document.querySelector('#game').innerHTML = (htmlTable);
         break;
         
