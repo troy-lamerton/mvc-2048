@@ -147,7 +147,7 @@ export default class Model {
 
   updateScore () {
     this.score = this.highestNumber();
-    if (this.score >= 256) {
+    if (this.score >= 2048) {
       this.gameStatus = 'You win! 2048!!! Keep playing if you wish...'
     } else if (!this.canMove()) {
       this.gameIsOver = true;
