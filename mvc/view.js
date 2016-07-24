@@ -43,7 +43,8 @@ export default class View {
         break;
 
       case 'browser':
-        const removedZerosBoard = model.board.map((row) => {
+      
+        const replacedZerosBoard = model.board.map((row) => {
           return row.map((num) => {
             if (num === 0) return '';
             else return num;
