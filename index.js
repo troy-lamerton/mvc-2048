@@ -1,4 +1,4 @@
-import Router from './mvc/router-console'
+import Router from './mvc/router-browser'
 
 const router = new Router()
 
