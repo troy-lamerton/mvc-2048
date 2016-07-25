@@ -1,7 +1,4 @@
-import Router from './mvc/router'
-
-// set to 'browser' or 'console'
-global.platform = 'browser'
+import Router from './mvc/router-browser'
 
 const router = new Router()
 

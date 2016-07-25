@@ -1,5 +1,5 @@
 import Model from './model'
-import View from './view'
+import View from './view-browser'
 
 export default class Controller {
   constructor () {
