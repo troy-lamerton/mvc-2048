@@ -4,11 +4,10 @@
   "description": "2048 for console and browser, structured using MVC framework",
   "main": "index.js",
   "scripts": {
-    "build-console": "browserify index.js -t [ babelify --comments false ] -o bundle-repl.js --node",
-    "build-browser": "browserify index.js -o ./public/bundle.js -t [ babelify --presets [ es2015 ] ]",
-    "serve": "cd public && budo --live",
+    "build": "browserify index.js -t [ babelify --comments false ] -o bundle-repl.js --node",
+    "build:browser": "watchify index.js -o ./public/bundle.js -t [ babelify --presets [ es2015 ] ] -v",
     "start": "npm run build-console && node bundle-repl",
-    "start:browser": "npm run build-browser && npm run serve",
+    "start:browser": "cd public && budo --live",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
